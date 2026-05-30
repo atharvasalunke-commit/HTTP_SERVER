@@ -1,0 +1,18 @@
+# 1. Compiled Code (The Absolute Rule)
+*.class
+/out/
+/build/
+/target/
+
+# 2. IntelliJ IDEA Workspace Files (Your Personal Settings)
+.idea/
+*.iml
+
+# 3. OS Generated Files (Invisible Garbage)
+.DS_Store
+Thumbs.db
+
+# 4. Logs
+*.log
+# 5. Binaries
+*.jar
