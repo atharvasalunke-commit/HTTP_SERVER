@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 public class GETCONTROLLER {
-
+private HashMap<String,Integer>map=new HashMap<>();
 
     public void handle_Get_Request(String[] Strs, HashMap<String, ArrayList<String>> mp, BufferedWriter out){
         ResponseBuilder rb=new ResponseBuilder();
@@ -19,12 +18,13 @@ public class GETCONTROLLER {
 
         String request_Type=Strs[1];
         String[] Requests=request_Type.split("\\?");
-
         ArrayList<String>list=new ArrayList<>();
         int n=Requests.length;
         String Query="SELECT * FROM ";
         String table_name=Requests[0].replace("/","");
         ArrayList<String>list2=new ArrayList<>();
+        DataBase db=new DataBase();
+        db.Insert_Columns_in_map(table_name,map,list2);
         if(n==2 && mp1.containsKey(table_name)){
             Query+=table_name+" ";
             String[] temp=Requests[1].split("&");
@@ -34,27 +34,17 @@ public class GETCONTROLLER {
             for(int i=0; i<x; i++) {
                 String[] temp2 = temp[i].split("=");
                 if (temp2.length < 2) continue;
-                StringBuilder temp4=new StringBuilder();
-                if(temp2[0].equalsIgnoreCase("product_name")||temp2[0].equalsIgnoreCase("Full_name")) {
-                    String temp3 = rb.space_Between_Queries(temp2[1]);
-                    temp4.append(temp3);
-                }
-                else{
-                    temp4.append(temp2[1]);
-                }
-                String temp5=temp4.toString();
-                if (new DataBase(Query).checkIfCoulmnExists(table_name, temp2[0],list2)) {
+                if (map.containsKey(temp2[0])) {
                     count++;
                 }
                 else{
                     count2++;
                     continue;
-                }
-                // BUG FIX 5: Added single quotes around temp2[1] so MySQL doesn't throw a syntax error
+                 }
                 if (count == 1) {
-                    Query += "WHERE " + temp2[0] + " = '" + temp5 + "'";
+                    Query += "WHERE " + temp2[0] + " = '" + temp2[1] + "'";
                 } else if (count > 1) {
-                    Query += " AND " + temp2[0] + " = '" + temp5 + "'";
+                    Query += " AND " + temp2[0] + " = '" + temp2[1] + "'";
                 }
             }
             if(count2==x){
@@ -69,7 +59,6 @@ public class GETCONTROLLER {
             }
         }
         else if(mp1.containsKey(table_name)){
-            boolean temp_flag=new DataBase(Query).checkIfCoulmnExists(table_name,table_name,list2);
             Query+=table_name;
         }
         else{
@@ -82,8 +71,12 @@ public class GETCONTROLLER {
                 e.printStackTrace();
             }
         }
-        DataBase db=new DataBase(Query);
-        boolean flag=db.read_Data(list,list2);
+
+        boolean flag=db.read_Data(list,list2,Query);
+        for(int i=0;i<list.size();i++){
+            System.out.println(i);
+            System.out.println(list.get(i));
+        }
         if(flag){
             try{
                 out.write("HTTP/1.1 404 Not Found\r\n\r\n");

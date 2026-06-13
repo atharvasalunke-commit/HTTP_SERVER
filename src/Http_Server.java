@@ -1,10 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.*;
-import DB.DataBase;
 
 class Http_Server {
     public static void main(String[] args){
@@ -18,8 +14,9 @@ class Http_Server {
                         rH.handle_cilent();
                         try {
                             Socket.close();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        }
+                        catch (IOException e) {
+                         e.printStackTrace();
                         }
                     });
 

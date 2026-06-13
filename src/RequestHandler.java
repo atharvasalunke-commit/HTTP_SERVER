@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RequestHandler {
-    private Socket Socket;
+    private final Socket Socket;
+    private  BufferedReader in;
+    private BufferedWriter out;
     public RequestHandler(Socket Socket){
         this.Socket=Socket;
     }
     public void handle_cilent(){
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(Socket.getInputStream()));
-            BufferedWriter out =new BufferedWriter(new OutputStreamWriter(Socket.getOutputStream()));
+             in = new BufferedReader(new InputStreamReader(Socket.getInputStream()));
+             out =new BufferedWriter(new OutputStreamWriter(Socket.getOutputStream()));
             StringBuilder Str=new StringBuilder();
+            ArrayList<String>con_len=new ArrayList<>();
             while(true){
                 String Temp=in.readLine();
                 if(Temp == null || Temp.isEmpty()){
@@ -20,10 +23,11 @@ public class RequestHandler {
                 }
                 Str.append(Temp);
                 Str.append("\r\n");
+                con_len.add(Temp);
             }
             String S=Str.toString();
             System.out.println(S);
-            Router rh=new Router(out,S);
+            Router rh=new Router(in,out,S,con_len);
             rh.handle_Request();
         }
         catch(IOException e){

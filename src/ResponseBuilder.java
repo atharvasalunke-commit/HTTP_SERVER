@@ -14,21 +14,6 @@ public class ResponseBuilder {
             e.printStackTrace();
         }
     }
-    public String space_Between_Queries(String Query){
-        StringBuilder temp=new StringBuilder();
-        int n=Query.length();
-        for(int i=0;i<n;i++){
-            if(Character.isUpperCase(Query.charAt(i))&&i>0){
-                temp.append(" ");
-                temp.append(Query.charAt(i));
-            }
-            else{
-                temp.append(Query.charAt(i));
-            }
-        }
-        String new_Query=temp.toString();
-        return new_Query;
-    }
 
     public String Response(String main_Body){
         String len=main_Body.length()+"";
