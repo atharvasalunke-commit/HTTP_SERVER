@@ -33,6 +33,7 @@ private HashMap<String,Integer>map=new HashMap<>();
             int count2=0;
             for(int i=0; i<x; i++) {
                 String[] temp2 = temp[i].split("=");
+                temp2[1]=temp2[1].replace("%20"," ");
                 if (temp2.length < 2) continue;
                 if (map.containsKey(temp2[0])) {
                     count++;
@@ -74,7 +75,6 @@ private HashMap<String,Integer>map=new HashMap<>();
 
         boolean flag=db.read_Data(list,list2,Query);
         for(int i=0;i<list.size();i++){
-            System.out.println(i);
             System.out.println(list.get(i));
         }
         if(flag){

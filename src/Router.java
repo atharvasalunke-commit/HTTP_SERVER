@@ -1,5 +1,3 @@
-import com.sun.net.httpserver.Request;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +29,21 @@ public class Router {
             System.out.println(Content[1]);
             int len=Integer.parseInt(Content[1]);
             POSTCONTROLLER pc=new POSTCONTROLLER(in,Target_Table);
-          String Response=pc.Post_Handler(len);
+          String main_Body=pc.Post_Handler(len);
           ResponseBuilder rb=new ResponseBuilder();;
-          rb.send(Response,out);
+            String Response=rb.Response(main_Body);
+            rb.send(Response,out);
         }
+        else if(Strs.length>1&&Strs[0].equals("DELETE")){
+            String[] temp=Strs[1].split("\\?");
+            String target_Table=temp[0].replace("/","");
+            DELETECONTROLLER DE=new DELETECONTROLLER(target_Table,temp);
+            String main_Body=DE.Delete_Row();
+            ResponseBuilder rb=new ResponseBuilder();;
+            String Response=rb.Response(main_Body);
+            rb.send(Response,out);
 
+        }
     }
 
 }
