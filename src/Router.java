@@ -7,6 +7,7 @@ public class Router {
     private  final BufferedWriter out;
     private final String Request;
     private final ArrayList<String> con_len;
+    private   HashMap<String,Integer>mp1=new HashMap<>();
     Router(BufferedReader in,BufferedWriter out,String Request,ArrayList<String> con_len){
         this.in=in;
         this.out=out;
@@ -14,12 +15,16 @@ public class Router {
         this.con_len=con_len;
     }
     public void handle_Request(){
+        mp1.put("products",1);
+        mp1.put("users",2);
+        mp1.put("orders",3);
+        mp1.put("order_items",4);
         String[] Strs=Request.split(" ");
 
         if(Strs.length > 1 && Strs[0].equals("GET")){
             HashMap<String, ArrayList<String>> mp=new HashMap<>();
             GETCONTROLLER gc=new GETCONTROLLER();
-            gc.handle_Get_Request(Strs,mp,out);
+            gc.handle_Get_Request(Strs,mp,out,mp1);
         }
         else if(Strs.length>1&&Strs[0].equals("POST")){
             int n=con_len.size();
@@ -28,8 +33,8 @@ public class Router {
             String [] Content=Content_Length.split("[\\s:]+");
             System.out.println(Content[1]);
             int len=Integer.parseInt(Content[1]);
-            POSTCONTROLLER pc=new POSTCONTROLLER(in,Target_Table);
-          String main_Body=pc.Post_Handler(len);
+            POSTCONTROLLER pc=new POSTCONTROLLER(in,Target_Table,len);
+          String main_Body=pc.Post_Handler();
           ResponseBuilder rb=new ResponseBuilder();;
             String Response=rb.Response(main_Body);
             rb.send(Response,out);
@@ -43,6 +48,19 @@ public class Router {
             String Response=rb.Response(main_Body);
             rb.send(Response,out);
 
+        }
+        else if(Strs.length>1&&Strs[0].equals("PATCH")){
+            int n=con_len.size();
+            String con=con_len.get(n-1);
+            String[] conts=con.split(" ");
+            int len=Integer.parseInt(conts[1]);
+            System.out.println(len);
+            PATCHCONTROLLER PCC=new PATCHCONTROLLER(in,len);
+            String[] temp=Strs[1].split("\\?");
+            String main_Body=PCC.Patch_Handler(temp,mp1);
+            ResponseBuilder rb=new ResponseBuilder();
+            String Response=rb.Response(main_Body);
+            rb.send(Response,out);
         }
     }
 

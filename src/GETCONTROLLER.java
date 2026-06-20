@@ -8,13 +8,9 @@ import java.util.Map;
 public class GETCONTROLLER {
 private HashMap<String,Integer>map=new HashMap<>();
 
-    public void handle_Get_Request(String[] Strs, HashMap<String, ArrayList<String>> mp, BufferedWriter out){
+    public void handle_Get_Request(String[] Strs, HashMap<String, ArrayList<String>> mp, BufferedWriter out,  HashMap<String,Integer>mp1)
+    {
         ResponseBuilder rb=new ResponseBuilder();
-        HashMap<String,Integer>mp1=new HashMap<>();
-        mp1.put("products",1);
-        mp1.put("users",2);
-        mp1.put("orders",3);
-        mp1.put("order_items",4);
 
         String request_Type=Strs[1];
         String[] Requests=request_Type.split("\\?");

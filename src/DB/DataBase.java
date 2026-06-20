@@ -42,10 +42,10 @@ public class DataBase {
             e.printStackTrace();
         }
         if (rows_Effect >=1) {
-            String x = rows_Effect+" row are updated successfully";
+            String x = rows_Effect+" row is updated successfully";
             return x;
         }
-        return "Rows could not be inserted";
+        return "Rows could not be updates";
     }
     public boolean read_Data(ArrayList<String>Data,ArrayList<String>list2,String Query){
         this.sql_Query=Query;
