@@ -23,7 +23,6 @@ public class POSTCONTROLLER {
     public String Post_Handler() {
         PAYLOAD_HANDLER PR=new PAYLOAD_HANDLER(in,len);
         Payload=PR.Payload_Receiver();
-        System.out.print("Here");
         ArrayList<String> list = new ArrayList<>();
         PR.Payload_Create(Payload,list);
         String query = "Select * from " + table;
@@ -50,21 +49,20 @@ public class POSTCONTROLLER {
             }
             i+=2;
         }
-       System.out.println("Here");
-        String Query=Make_Post_Query(table);
-        String body=db.insert_Values(Query);
+       ArrayList<String> list3 = new ArrayList<>();
+        String Query=Make_Post_Query(table,list3);
+        String body=db.insert_Values(Query,list3);
         StringBuilder main_Body = new StringBuilder();
         main_Body.append("{").append(body).append("}");
         return main_Body.toString();
     }
 
-    public String Make_Post_Query(String table_name) {
+    public String Make_Post_Query(String table_name,ArrayList<String>list3) {
         StringBuilder sql_Q = new StringBuilder("Insert into " + table_name + " (");
         try {
             ResultSetMetaData metaData = db.get_MeteData();
             int n = metaData.getColumnCount();
             ArrayList<ArrayList<String>> list = new ArrayList<>();
-
             System.out.println(table_name);
             n-=1;
             for (int i = 2; i <= n; i++) {
@@ -93,10 +91,11 @@ public class POSTCONTROLLER {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+                sql_Q.append(" ? ");
                 if (flag) {
-                    sql_Q.append(list.get(i - 1).get(j));
+                    list3.add(list.get(i - 1).get(j));
                 } else {
-                    sql_Q.append("'").append(list.get(i - 1).get(j)).append("'");
+                    list3.add(list.get(i - 1).get(j));
                 }
 
                 if (i + 1 == n) {

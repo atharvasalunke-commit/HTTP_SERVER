@@ -16,32 +16,35 @@ private HashMap<String,Integer>map=new HashMap<>();
         String[] Requests=request_Type.split("\\?");
         ArrayList<String>list=new ArrayList<>();
         int n=Requests.length;
-        String Query="SELECT * FROM ";
+        StringBuilder Query=new StringBuilder("SELECT * FROM ");
         String table_name=Requests[0].replace("/","");
         ArrayList<String>list2=new ArrayList<>();
         DataBase db=new DataBase();
         db.Insert_Columns_in_map(table_name,map,list2);
+        ArrayList<String>list3=new ArrayList<>();
         if(n==2 && mp1.containsKey(table_name)){
-            Query+=table_name+" ";
+            Query.append(table_name).append(" ");
             String[] temp=Requests[1].split("&");
             int x=temp.length;
             int count=0;
             int count2=0;
             for(int i=0; i<x; i++) {
                 String[] temp2 = temp[i].split("=");
-                temp2[1]=temp2[1].replace("%20"," ");
                 if (temp2.length < 2) continue;
+                temp2[1]=temp2[1].replace("%20"," ");
                 if (map.containsKey(temp2[0])) {
                     count++;
                 }
                 else{
                     count2++;
                     continue;
-                 }
+                }
                 if (count == 1) {
-                    Query += "WHERE " + temp2[0] + " = '" + temp2[1] + "'";
+                    Query.append ("WHERE ").append(temp2[0]).append("= ? ");
+                    list3.add(temp2[1]);
                 } else if (count > 1) {
-                    Query += " AND " + temp2[0] + " = '" + temp2[1] + "'";
+                    Query .append( " AND ").append(temp2[0]).append("= ? ");
+                    list3.add(temp2[1]);
                 }
             }
             if(count2==x){
@@ -56,7 +59,7 @@ private HashMap<String,Integer>map=new HashMap<>();
             }
         }
         else if(mp1.containsKey(table_name)){
-            Query+=table_name;
+            Query.append(table_name);
         }
         else{
             try{
@@ -69,7 +72,7 @@ private HashMap<String,Integer>map=new HashMap<>();
             }
         }
 
-        boolean flag=db.read_Data(list,list2,Query);
+        boolean flag=db.read_Data(list,list2,Query.toString(),list3);
         for(int i=0;i<list.size();i++){
             System.out.println(list.get(i));
         }

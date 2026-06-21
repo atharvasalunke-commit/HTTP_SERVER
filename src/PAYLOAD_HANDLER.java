@@ -34,7 +34,10 @@ public class PAYLOAD_HANDLER {
         }
        else{
            for(int i=0;i<Payload.length();i++){
-               if(Payload.charAt(i)=='"'){}
+               if(Payload.charAt(i)==' '){
+
+               }
+               else if(Payload.charAt(i)=='"'){}
                else if(Payload.charAt(i)=='{'){
                    flag1=true;
                }
@@ -55,10 +58,28 @@ public class PAYLOAD_HANDLER {
                    sb2=new StringBuilder();
                }
                else if(flag1){
-                   sb1.append(Payload.charAt(i));
+                   int j=i;
+                   while(Payload.charAt(j)!=':'){
+                       if(Payload.charAt(j)=='"'){
+                           j++;
+                           continue;
+                       }
+                       sb1.append(Payload.charAt(j));
+                       j++;
+                   }
+                   i=j-1;
                }
                else if(flag2){
-                   sb2.append(Payload.charAt(i));
+                   int j=i;
+                  while(Payload.charAt(j)!=','&&Payload.charAt(j)!='}'){
+                      if(Payload.charAt(j)=='"'){
+                          j++;
+                          continue;
+                      }
+                      sb2.append(Payload.charAt(j));
+                      j++;
+                  }
+                  i=j-1;
                }
            }
            return;
@@ -95,10 +116,28 @@ public class PAYLOAD_HANDLER {
                 sb2=new StringBuilder();
             }
             else if(flag1&&flag3){
-                sb1.append(c[i]);
+                int j=i;
+                while(c[j]!=':'){
+                    if(c[j]=='"'){
+                        j++;
+                        continue;
+                    }
+                    sb1.append(c[j]);
+                    j++;
+                }
+                i=j-1;
             }
             else if(flag2&&flag3){
-                sb2.append(c[i]);
+                int j=i;
+                while(c[j]!=','&&c[j]!='}'){
+                    if(c[j]=='"'){
+                        j++;
+                        continue;
+                    }
+                    sb2.append(c[j]);
+                    j++;
+                }
+                i=j-1;
             }
         }
     }

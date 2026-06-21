@@ -18,16 +18,18 @@ public class DELETECONTROLLER {
         String[] Rows=Requests[1].split("&");
         StringBuilder Query=new StringBuilder("UPDATE "+table_Name+" SET is_deleted=TRUE WHERE ");
         System.out.println(Rows.length);
+        ArrayList<String> list2=new ArrayList<>();
         if(Rows.length>=2){
             for(int i=0;i<Rows.length;i++){
                 String[] temp1=Rows[i].split("=");
                 if(mp.containsKey(temp1[0])){
                     if(i>1){
-                        Query.append(" AND ").append(temp1[0]).append(" = " ).append(temp1[1]);
+                        Query.append(" AND ").append(temp1[0]).append(" = ? " );
                     }
                     else{
-                        Query.append(temp1[0]).append(" = ").append(temp1[1]);
+                        Query.append(temp1[0]).append(" = ? ");
                     }
+                    list2.add(temp1[1]);
                 }
             }
         }
@@ -38,7 +40,8 @@ public class DELETECONTROLLER {
            if(mp.containsKey(temp1[0])) {
                Query.append(temp1[0]).append(" in ").append("(");
                for (int i = 1; i < temp1.length; i++) {
-                Query.append("'").append(temp1[i]).append("'");
+                   list2.add(temp1[i]);
+                Query.append(" ? ");
                 if(i+1<temp1.length){
                     Query.append(",");
                 }
@@ -50,7 +53,8 @@ public class DELETECONTROLLER {
             Rows[0]=Rows[0].replace("%20"," ");
                 String[] temp1=Rows[0].split("=");
                 if(mp.containsKey(temp1[0])) {
-                    Query.append(temp1[0]).append(" ='").append(temp1[1]).append("'");
+                    Query.append(temp1[0]).append(" = ? ");
+                    list2.add(temp1[1]);
                 }
         }
         else{
@@ -58,7 +62,7 @@ public class DELETECONTROLLER {
         }
         System.out.println(Query);
         String sql_Query = Query.toString();
-        String body=db.insert_Values(sql_Query);
+        String body=db.insert_Values(sql_Query,list2);
         StringBuilder main_Body=new StringBuilder();
         main_Body.append("{").append(body).append("}");
         return main_Body.toString();

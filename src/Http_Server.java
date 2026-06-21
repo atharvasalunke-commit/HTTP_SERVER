@@ -10,8 +10,14 @@ class Http_Server {
             while(true){
                     Socket Socket = Server.accept();
                     Executor.submit(() -> {
-                        RequestHandler rH = new RequestHandler(Socket);
-                        rH.handle_cilent();
+                        try {
+                            RequestHandler rH = new RequestHandler(Socket);
+                            rH.handle_cilent();
+                        } catch (Exception e) {
+                            e.printStackTrace(); // Now you will see the hidden crashes!
+                        } finally {
+                            try { Socket.close(); } catch (IOException e) { e.printStackTrace(); }
+                        }
                         try {
                             Socket.close();
                         }

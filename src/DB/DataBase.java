@@ -33,11 +33,16 @@ public class DataBase {
             e.printStackTrace();
         }
     }
-    public String insert_Values(String Query) {
+    public String insert_Values(String Query,ArrayList<String> list) {
         this.sql_Query = Query;
-        try (Connection con = DriverManager.getConnection(Url, User, Pass);
-             Statement stmt = con.createStatement()) {
-            rows_Effect = stmt.executeUpdate(sql_Query);
+        try (Connection conn = DriverManager.getConnection(Url, User, Pass);) {
+            PreparedStatement pstmt=conn.prepareStatement(sql_Query);
+            for(int i=0;i<list.size();i++){
+                pstmt.setObject(i+1,list.get(i));
+                System.out.println(list.get(i));
+            }
+            System.out.println(pstmt.toString());
+            rows_Effect = pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -45,15 +50,19 @@ public class DataBase {
             String x = rows_Effect+" row is updated successfully";
             return x;
         }
-        return "Rows could not be updates";
+        return "Rows could not be update";
     }
-    public boolean read_Data(ArrayList<String>Data,ArrayList<String>list2,String Query){
+    public boolean read_Data(ArrayList<String>Data,ArrayList<String>list2,String Query,ArrayList<String> list3){
         this.sql_Query=Query;
-        try(Connection conn=DriverManager.getConnection(Url,User,Pass);
-            PreparedStatement stmt=conn.prepareStatement(sql_Query);
-            ResultSet manage_Mysql=stmt.executeQuery();){
+        try(Connection conn=DriverManager.getConnection(Url,User,Pass);){
+            PreparedStatement pstmt=conn.prepareStatement(sql_Query);
+            for(int i=0;i<list3.size();i++){
+                pstmt.setString(i+1,list3.get(i));
+            }
+            ResultSet manage_Mysql=pstmt.executeQuery();
+            ResultSetMetaData liveMetaData = manage_Mysql.getMetaData();
             boolean indicator = true;
-            int n=metaData.getColumnCount();
+            int n=liveMetaData.getColumnCount();
                 while (manage_Mysql.next()) {
                     if(manage_Mysql.getString(n).equals("1")){
                         continue;
