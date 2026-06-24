@@ -32,7 +32,7 @@ Dynamic SQL: The server inspects the MySQL tables at runtime and generates SQL q
 
 Security: Uses Java Prepared Statements for every query to block SQL injection attacks. User data is never concatenated directly into the query string.
 
-API Endpoints
+4.API Endpoints
 
 Make sure Postman is set to Raw and JSON for POST and PATCH requests.
 
@@ -88,7 +88,7 @@ Safely remove a single order: http://localhost:8080/orders?id=5
 
 Safely remove multiple items: http://localhost:8080/products?id=1,2,3,4
 
-Running the Engine
+5.Running the Engine
 
 This engine requires Java 21+ and a local instance of MySQL.
 
