@@ -1,18 +1,17 @@
 import java.io.*;
-import java.util.ArrayList;
+import java.sql.Connection;
 import java.util.HashMap;
-
 public class Router {
     private final BufferedReader in;
     private  final BufferedWriter out;
     private final String Request;
-    private final ArrayList<String> con_len;
-    private   HashMap<String,Integer>mp1=new HashMap<>();
-    Router(BufferedReader in,BufferedWriter out,String Request,ArrayList<String> con_len){
+    private Connection conn;
+    private  HashMap<String,Integer>mp1=new HashMap<>();
+    Router(BufferedReader in,BufferedWriter out,String Request,Connection conn){
         this.in=in;
         this.out=out;
         this.Request=Request;
-        this.con_len=con_len;
+        this.conn=conn;
     }
     public void handle_Request(){
         mp1.put("products",1);
@@ -22,45 +21,24 @@ public class Router {
         String[] Strs=Request.split(" ");
 
         if(Strs.length > 1 && Strs[0].equals("GET")){
-            HashMap<String, ArrayList<String>> mp=new HashMap<>();
-            GETCONTROLLER gc=new GETCONTROLLER();
-            gc.handle_Get_Request(Strs,mp,out,mp1);
+            GETCONTROLLER gc=new GETCONTROLLER(conn);
+            gc.handle_Get_Request(Strs,out,mp1);
         }
         else if(Strs.length>1&&Strs[0].equals("POST")){
-            int n=con_len.size();
             String Target_Table=Strs[1].replace("/","");
-            String Content_Length=con_len.get(n-1);
-            String [] Content=Content_Length.split("[\\s:]+");
-            System.out.println(Content[1]);
-            int len=Integer.parseInt(Content[1]);
-            POSTCONTROLLER pc=new POSTCONTROLLER(in,Target_Table,len);
-          String main_Body=pc.Post_Handler();
-          ResponseBuilder rb=new ResponseBuilder();;
-            String Response=rb.Response(main_Body);
-            rb.send(Response,out);
+            POSTCONTROLLER pc=new POSTCONTROLLER(in,Target_Table,Request,conn);
+            pc.Post_Handler(out,mp1);
         }
         else if(Strs.length>1&&Strs[0].equals("DELETE")){
             String[] temp=Strs[1].split("\\?");
             String target_Table=temp[0].replace("/","");
-            DELETECONTROLLER DE=new DELETECONTROLLER(target_Table,temp);
-            String main_Body=DE.Delete_Row();
-            ResponseBuilder rb=new ResponseBuilder();;
-            String Response=rb.Response(main_Body);
-            rb.send(Response,out);
-
+            DELETECONTROLLER DE=new DELETECONTROLLER(target_Table,temp,conn,mp1);
+            DE.Delete_Row(out);
         }
         else if(Strs.length>1&&Strs[0].equals("PATCH")){
-            int n=con_len.size();
-            String con=con_len.get(n-1);
-            String[] conts=con.split(" ");
-            int len=Integer.parseInt(conts[1]);
-            System.out.println(len);
-            PATCHCONTROLLER PCC=new PATCHCONTROLLER(in,len);
+            PATCHCONTROLLER PCC=new PATCHCONTROLLER(in,Request,conn);
             String[] temp=Strs[1].split("\\?");
-            String main_Body=PCC.Patch_Handler(temp,mp1);
-            ResponseBuilder rb=new ResponseBuilder();
-            String Response=rb.Response(main_Body);
-            rb.send(Response,out);
+            PCC.Patch_Handler(temp,mp1,out);
         }
     }
 

@@ -1,35 +1,49 @@
 import DB.DataBase;
 
 import java.io.*;
+import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 public class POSTCONTROLLER {
     private String Payload;
+    private final Connection conn;
     private HashMap<String, ArrayList<String>> new_Rows = new HashMap<>();
     private String table;
-    private DataBase db;
     private BufferedReader in;
-    private int len;
-    public POSTCONTROLLER(BufferedReader in, String table,int len) {
-      this.in=in;
-      this.table = table;
-      this.len=len;
+    private String Request;
+    public POSTCONTROLLER(BufferedReader in, String table,String Request,Connection conn) {
+        this.Request=Request;
+        this.in=in;
+         this.table = table;
+         this.conn=conn;
     }
-
-
-    public String Post_Handler() {
-        PAYLOAD_HANDLER PR=new PAYLOAD_HANDLER(in,len);
-        Payload=PR.Payload_Receiver();
-        ArrayList<String> list = new ArrayList<>();
-        PR.Payload_Create(Payload,list);
-        String query = "Select * from " + table;
-        this.db = new DataBase();
+    public void Post_Handler(BufferedWriter out,HashMap<String,Integer>mp1) {
+        ResponseBuilder rb=new ResponseBuilder();
+        DataBase db = new DataBase(conn);
+        PAYLOAD_HANDLER PH=new PAYLOAD_HANDLER(in);
         ArrayList<String> list2 = new ArrayList<>();
         HashMap<String, Integer> map = new HashMap<>();
-        db.Insert_Columns_in_map(table, map, list2);
+        if(mp1.containsKey(table)){
+            db.Insert_Columns_in_map(table, map, list2);
+        }
+        else{
+            rb.send("400 Bad Request",out);
+            return;
+        }
+
+        int len=PH.Find_Con_Length(this.Request);
+        if(len==-1){
+            rb.send("400 Bad Request",out);
+            return;
+        }
+        Payload=PH.Payload_Receiver(len);
+        ArrayList<String> list = new ArrayList<>();
+        PH.Payload_Create(Payload,list);
+        String query = "Select * from " + table;
+
+
         for (int i = 1; i < list2.size(); i++) {
             new_Rows.put(list2.get(i), new ArrayList<>());
         }
@@ -44,26 +58,34 @@ public class POSTCONTROLLER {
                 temp.add(list.get(i));
                 new_Rows.remove(list.get(i - 1));
                 new_Rows.put(list.get(i - 1), temp);
-                System.out.println(list.get(i - 1));
-                System.out.println(list.get(i));
             }
             i+=2;
         }
        ArrayList<String> list3 = new ArrayList<>();
-        String Query=Make_Post_Query(table,list3);
-        String body=db.insert_Values(Query,list3);
+        String Query=Make_Post_Query(table,list3,db);
+        int rows_Inserted=db.insert_Values(Query,list3);
+        StringBuilder Status_Code=new StringBuilder();
+        StringBuilder Body=new StringBuilder();
+        if(rows_Inserted<=0){
+            Status_Code.append("400 Bad Request");
+            Body.append("Mysql throws an error or no row were inserted");
+        }
+        else if(rows_Inserted>=1){
+            Status_Code.append("201 Created");
+            Body.append(rows_Inserted).append("rows inserted");
+        }
         StringBuilder main_Body = new StringBuilder();
-        main_Body.append("{").append(body).append("}");
-        return main_Body.toString();
+        main_Body.append("{\"message\":\"").append(Body).append("\"}");
+        String Response=rb.Response(main_Body.toString(),Status_Code.toString());
+        rb.send(Response,out);
     }
 
-    public String Make_Post_Query(String table_name,ArrayList<String>list3) {
+    public String Make_Post_Query(String table_name,ArrayList<String>list3,DataBase db) {
         StringBuilder sql_Q = new StringBuilder("Insert into " + table_name + " (");
         try {
             ResultSetMetaData metaData = db.get_MeteData();
             int n = metaData.getColumnCount();
             ArrayList<ArrayList<String>> list = new ArrayList<>();
-            System.out.println(table_name);
             n-=1;
             for (int i = 2; i <= n; i++) {
                 String column = metaData.getColumnName(i);
@@ -82,22 +104,8 @@ public class POSTCONTROLLER {
             sql_Q.append("(");
             int size = list.get(0).size();
             while (j < size) {
-                try {
-                    if (metaData.getColumnType(i + 1) == java.sql.Types.INTEGER || metaData.getColumnType(i + 1) == java.sql.Types.DECIMAL || metaData.getColumnType(i + 1) == java.sql.Types.DOUBLE || metaData.getColumnType(i + 1) == java.sql.Types.FLOAT) {
-                        flag = true;
-                    } else {
-                        flag = false;
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
                 sql_Q.append(" ? ");
-                if (flag) {
-                    list3.add(list.get(i - 1).get(j));
-                } else {
-                    list3.add(list.get(i - 1).get(j));
-                }
-
+                list3.add(list.get(i - 1).get(j));
                 if (i + 1 == n) {
                     sql_Q.append(")");
                 }

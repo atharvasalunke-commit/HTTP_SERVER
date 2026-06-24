@@ -4,12 +4,20 @@ import java.util.ArrayList;
 
 public class PAYLOAD_HANDLER {
     private BufferedReader in;
-    private int len;
-    PAYLOAD_HANDLER(BufferedReader in, int len){
+    PAYLOAD_HANDLER(BufferedReader in){
         this.in=in;
-        this.len=len;
     }
-    public String Payload_Receiver(){
+    public int Find_Con_Length(String Cont){
+        String[] Conts=Cont.split("\\s+");
+        for(int i=0;i<Cont.length();i++){
+            if(Conts[i].equals("Content-Length:")){
+                int len=Integer.parseInt(Conts[i+1]);
+                return len;
+            }
+        }
+        return -1;
+    }
+    public String Payload_Receiver(int len){
         char[] buffer=new char[len];
         int Total_Char=0;
         while(Total_Char<len){
