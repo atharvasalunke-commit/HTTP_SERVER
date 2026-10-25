@@ -107,8 +107,5 @@ Provide your database credentials to the terminal prompt to boot the connection 
 Send HTTP requests via Postman to localhost:8080.
 ## Credits & References
 - Database schema and initial mock data sourced from [https://www.mockaroo.com/].
-Demo Video:Project Demo
-
-Watch the demo to see JobTracker's job search, secure authentication, and application tracking features in action.
 
 "Watch Project Demo:https://youtu.be/GhwhKH6XIfg?si=_oV4S9gbiO97VHcW
